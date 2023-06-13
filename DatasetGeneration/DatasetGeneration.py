@@ -85,7 +85,7 @@ class DatasetGeneration:
         local_dictionary = {}
 
         for i in range(0,iteration_count):
-            total_length = random.randint(1,max_number_of_sequence_in_batch)
+            total_length = random.randint(1, max_number_of_sequence_in_batch) # randomization over number of sequences 
             f = open(os.path.join(directory_name, 'in'+str(i+1)+'.txt'),'w')
             f.write(str(total_length)+'\n')
             j = -1
