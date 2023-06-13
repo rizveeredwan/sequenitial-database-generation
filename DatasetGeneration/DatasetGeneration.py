@@ -1,21 +1,24 @@
+import os.path
 import random
+import shutil
 
 total_item_count = 30
-iteration_count = 2
-max_sequence_length = 40
+iteration_count = 1
+max_sequence_length = 30
 max_number_of_sequence_in_batch=500
-directory_name = 'E:\Research\Incremental-Sequential-Pattern-Mining\Incremental-Sequential-Pattern-Mining-with-SP-Tree\Implementation\Dataset\Dataset18'
+directory_name = os.path.join('.')
+
 
 class DatasetGeneration:
     def __init__(self):
-        pass
+        self.directory_name = 'new_data'
+
     def SequenceGeneration(self, length):
+        # generating a single sequence
         global total_item_count
-        event = []
         seq = []
-        already_added_length = 0
         i = -1
-        while (i < length-1):
+        while i < (length-1):
             i = i + 1
             event_decision = random.randint(0,1)
             if(event_decision == 0):
@@ -26,7 +29,7 @@ class DatasetGeneration:
                 else:
                     last_item = seq[len(seq)-1][len(seq[len(seq)-1])-1] # last item of the last event
                     if(last_item == total_item_count-1):
-                        i = i - 1
+                        i = i - 1 # expecting new event transition
                         continue
                     else:
                         new_item = random.randint(last_item+1, total_item_count-1)
@@ -55,17 +58,22 @@ class DatasetGeneration:
         final_string = str(sid)+" "+final_string
         return final_string
 
-    def WriteMergedFile(self, file_directory):
-        with open(file_directory+'/merged.txt', 'w') as file:
+    def WriteMergedFile(self):
+        file_directory = self.directory_name
+        with open(os.path.join(file_directory, 'merged.txt'), 'w') as file:
             file.write(str(len(self.complete_database))+'\n')
             for key in self.complete_database:
                 string = self.ConvertingASequenceToString(key, self.complete_database[key])
                 file.write(string + '\n')
             file.close()
 
-    def Generation(self, directory_name):
+    def Generation(self):
+        directory_name = self.directory_name
+        if os.path.exists(directory_name):
+            shutil.rmtree(directory_name)
+        os.mkdir(directory_name)
         global iteration_count, max_number_of_sequence_in_batch, max_sequence_length
-        f =  open(directory_name+'\metadata.txt','w')
+        f =  open(os.path.join(directory_name, 'metadata.txt'),'w')
         f.write("1\n")
         f.write(str(iteration_count)+'\n')
         f.close()
@@ -78,7 +86,7 @@ class DatasetGeneration:
 
         for i in range(0,iteration_count):
             total_length = random.randint(1,max_number_of_sequence_in_batch)
-            f = open(directory_name+'\in'+str(i+1)+'.txt','w')
+            f = open(os.path.join(directory_name, 'in'+str(i+1)+'.txt'),'w')
             f.write(str(total_length)+'\n')
             j = -1
             local_dictionary.clear()
@@ -86,7 +94,7 @@ class DatasetGeneration:
                 j = j + 1
                 verdict = random.randint(0,1)
                 if(verdict == 0):
-                    # appending to a new sequence
+                    # appending to a sequence
                     if(total_number_of_sequence == 0):
                         j = j -1
                         continue
@@ -111,7 +119,7 @@ class DatasetGeneration:
                 elif(verdict == 1):
                     # new sequence
                     total_number_of_sequence = total_number_of_sequence + 1
-                    length = random.randint(1,max_sequence_length-1)
+                    length = random.randint(1, max_sequence_length-1)
                     seq = self.SequenceGeneration(length)
                     self.complete_database[total_number_of_sequence] = seq
                     self.saving_length[total_number_of_sequence] = length
@@ -122,5 +130,5 @@ class DatasetGeneration:
 
 
 dataset_gen = DatasetGeneration()
-dataset_gen.Generation(directory_name)
-dataset_gen.WriteMergedFile(directory_name)
+dataset_gen.Generation()
+dataset_gen.WriteMergedFile()
