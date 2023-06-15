@@ -67,7 +67,7 @@ class DatasetGeneration:
                 file.write(string + '\n')
             file.close()
 
-    def Generation(self):
+    def Generation(self, randomization=True):
         directory_name = self.directory_name
         if os.path.exists(directory_name):
             shutil.rmtree(directory_name)
@@ -85,7 +85,10 @@ class DatasetGeneration:
         local_dictionary = {}
 
         for i in range(0,iteration_count):
-            total_length = random.randint(1, max_number_of_sequence_in_batch) # randomization over number of sequences 
+            if randomization is True:
+                total_length = random.randint(1, max_number_of_sequence_in_batch)  # randomization over number of sequences
+            else:
+                total_length = max_number_of_sequence_in_batch
             f = open(os.path.join(directory_name, 'in'+str(i+1)+'.txt'),'w')
             f.write(str(total_length)+'\n')
             j = -1
@@ -130,5 +133,5 @@ class DatasetGeneration:
 
 
 dataset_gen = DatasetGeneration()
-dataset_gen.Generation()
+dataset_gen.Generation(randomization=False)
 dataset_gen.WriteMergedFile()
